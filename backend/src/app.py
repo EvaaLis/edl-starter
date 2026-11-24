@@ -220,8 +220,26 @@ async def update_task(task_id: int, updates: TaskUpdate) -> Task:
     - updates.model_dump(exclude_unset=True) renvoie un dictionnaire contenant
       uniquement les champs envoyés, par exemple {"status": "done"}.
     """
-    # TODO: Votre code ici
-    raise HTTPException(status_code=501, detail="Update not implemented yet - complete this function!")
+    if task_id not in tasks_db:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+
+    existing = tasks_db[task_id]
+    data = updates.model_dump(exclude_unset=True)
+
+    task = Task(
+        id=existing.id,
+        title=data.get("title", existing.title),
+        description=data.get("description", existing.description),
+        status=data.get("status", existing.status),
+        priority=data.get("priority", existing.priority),
+        assignee=data.get("assignee", existing.assignee),
+        due_date=data.get("due_date", existing.due_date),
+        created_at=existing.created_at,
+        updated_at=datetime.now(timezone.utc)
+    )
+
+    tasks_db[task_id] = task
+    return task
 
 
 @app.delete("/tasks/{task_id}", status_code=204)
@@ -238,7 +256,14 @@ async def delete_task(task_id: int):
     Indice : get_task(), plus haut dans ce fichier, vérifie déjà si une tâche existe.
     """
     # TODO: Votre code ici
-    raise HTTPException(status_code=501, detail="Delete not implemented yet - complete this function!")
+    if task_id not in tasks_db:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    else:
+        del tasks_db[task_id]
+        
+
+    
+
 
 
 if __name__ == "__main__":  # pragma: no cover (lancement manuel, pas testé)
