@@ -38,7 +38,7 @@ def test_health_check(client):
     response = client.get("/health")
 
     assert response.status_code == 200
-    assert response.json()["status"] == "broken" # ❌ Faux exprès !
+    assert response.json()["status"] == "healthy" # ❌ Faux exprès !
 
 
 def test_create_task(client):
